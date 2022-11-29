@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "sim-dev"
+version = "0.1.0"
+description = ""
+authors = ["doddsy2018 <iain_dodds@hotmail.com>"]
+readme = "README.md"
+packages = [{include = "sim_dev"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+carla = "^0.9.13"
+pygame = "^2.1.2"
+opencv-python = "^4.6.0.66"
+shared-memory-dict = "^0.7.2"
+ruamel-yaml = "^0.17.21"
+screeninfo = "^0.8.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

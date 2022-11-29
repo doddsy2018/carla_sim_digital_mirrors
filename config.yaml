@@ -1,0 +1,6 @@
+# Calra Sim Config Parameters
+sim:
+  windows:
+    front_res: [1920,1080]
+    mirror_res: [640,480]
+  
