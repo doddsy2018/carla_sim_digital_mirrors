@@ -31,6 +31,10 @@ Features
 - `poetry run python right_mirror_view.py` - rigth mirror only
 - `poetry run python left_mirror_view.py` - left mirror only
 
+## Utilities
+
+- `poetry run python util_get_joystick_values.py` - Display joystick values untility tool
+
 ## Screenshot
 
 ![screenshot](./images/sim_view.PNG)
