@@ -9,12 +9,28 @@ import pygame
 from ruamel.yaml import YAML
 from pathlib import Path
 
+from pygame.locals import K_a
+from pygame.locals import K_w
+from pygame.locals import K_d
+from pygame.locals import K_x
+from pygame.locals import K_f
+from pygame.locals import K_t
+from pygame.locals import K_h
+from pygame.locals import K_b
 from shared_memory_dict import SharedMemoryDict
 smd = SharedMemoryDict(name='tokens', size=10000000)
 
 # Read Config File
 configfile=Path("config.yaml")
 _config = YAML(typ='safe').load(configfile)
+
+class mirror_parameters:
+    def __init__(self):
+        self.left_yaw=-150
+        self.left_pitch=0
+        self.right_yaw=150
+        self.right_pitch=0
+
 
 # Render object to keep and pass the PyGame surface
 class RenderObject(object):
@@ -116,6 +132,7 @@ front_window_size=_config['sim']['windows']['front_res']
 mirror_window_size=_config['sim']['windows']['mirror_res']
 autopilot=False
 
+mp=mirror_parameters()
 
 # Connect to the client 
 client = carla.Client(host, port)
@@ -123,6 +140,16 @@ client.set_timeout(200.0)
 
 #world = client.load_world('Town04')
 world = client.load_world('Town10HD_Opt')
+
+'''
+# Large World Loading
+world = client.load_world('Town11')
+settings = world.get_settings()
+settings.tile_stream_distance = 2000
+world.apply_settings(settings)
+'''
+
+
 
 # Load layered map for Town 01 with minimum layout plus buildings and parked vehicles
 #world = client.load_world('Town10_Opt', carla.MapLayer.Buildings | carla.MapLayer.ParkedVehicles)
@@ -156,15 +183,18 @@ traffic_manager.set_synchronous_mode(True)
 traffic_manager.set_random_device_seed(0)
 random.seed(0)
 
+'''
 # Print list of available vehicles
 vehicle_blueprints = world.get_blueprint_library().filter('vehicle')
 for car_bp in vehicle_blueprints:
     print (car_bp)
+'''
 
 vehicle_tag='charger_2020'
 
 # Instanciating te vehicle to which we attached the sensors
 bp = world.get_blueprint_library().filter(vehicle_tag)[0]
+bp.set_attribute('role_name', 'hero' )
 vehicle = world.spawn_actor(bp, random.choice(world.get_map().get_spawn_points()))
 vehicle_list.append(vehicle)
 vehicle.set_autopilot(autopilot)
@@ -190,8 +220,12 @@ car_blueprint.set_attribute('fov', '110')
 ###blueprint.set_attribute('sensor_tick', '1')
 
 # Provide the position of the sensor relative to the vehicle.
-left_mirror_transform = carla.Transform(carla.Location(x=.7, y=-1, z=1.2), carla.Rotation(yaw=-150))
-right_mirror_transform = carla.Transform(carla.Location(x=.7, y=1, z=1.2), carla.Rotation(yaw=150))
+#left_mirror_transform = carla.Transform(carla.Location(x=.7, y=-1, z=1.2), carla.Rotation(yaw=-150))
+#right_mirror_transform = carla.Transform(carla.Location(x=.7, y=1, z=1.2), carla.Rotation(yaw=150))
+
+left_mirror_transform = carla.Transform(carla.Location(x=.7, y=-1, z=1.2), carla.Rotation(pitch=mp.left_pitch, yaw=mp.left_yaw))
+right_mirror_transform = carla.Transform(carla.Location(x=.7, y=1, z=1.2), carla.Rotation(pitch=mp.right_pitch,yaw=mp.right_yaw))
+
 front_view_transform = carla.Transform(carla.Location(x=0.8, z=1.7))
 
 
@@ -245,6 +279,30 @@ while not crashed:
                     my_controller._control.gear = 1 if my_controller._control.reverse else -1
                     print ("Reverse", my_controller._control.gear )
 
+        # Process Mirror Adjustments
+        if event.type == pygame.KEYDOWN:
+            if event.key == K_a:
+                    mp.left_yaw += 1
+            elif event.key == K_d:
+                    mp.left_yaw += -1
+            elif event.key == K_w:
+                    mp.left_pitch += 1
+            elif event.key == K_x:
+                    mp.left_pitch += -1
+
+            elif event.key == K_f:
+                    mp.right_yaw += 1
+            elif event.key == K_h:
+                    mp.right_yaw += -1
+            elif event.key == K_t:
+                    mp.right_pitch += 1
+            elif event.key == K_b:
+                    mp.right_pitch += -1
+
+            left_mirror_transform = carla.Transform(carla.Location(x=.7, y=-1, z=1.2), carla.Rotation(pitch=mp.left_pitch, yaw=mp.left_yaw))
+            right_mirror_transform = carla.Transform(carla.Location(x=.7, y=1, z=1.2), carla.Rotation(pitch=mp.right_pitch,yaw=mp.right_yaw))
+            lmv_sensor.set_transform(left_mirror_transform)
+            rmv_sensor.set_transform(right_mirror_transform)
 
 client.apply_batch([carla.command.DestroyActor(x) for x in vehicle_list])
 world.apply_settings(original_settings)

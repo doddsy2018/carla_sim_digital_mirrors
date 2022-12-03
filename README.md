@@ -11,13 +11,15 @@ Features
 - Main simulation thread uses pygame window.
 - Share memory is accessed by the mirror view routines and displayed using opencv
 
+---
+
 ## Prerequisites
 
 - Download and Install Carla Simualtor 0.9.13 
     - (https://carla.org/)
     - (https://github.com/carla-simulator/carla)
     - (https://github.com/carla-simulator/carla/releases/tag/0.9.13)
-- Download and Install AdditionalMaps_0.9.13
+- Download and Install AdditionalMaps_0.9.13w
 - Install Python 3.8.10
 - Install Poetry Dependency Management (https://python-poetry.org/docs/)
 
@@ -34,6 +36,26 @@ Features
 ## Utilities
 
 - `poetry run python util_get_joystick_values.py` - Display joystick values untility tool
+
+---
+
+## Mirror Adjustment Keys
+
+### Left Mirror Controls
+
+ - `w` - Left Mirror Rotate Up
+ - `x` - Left Mirror Rotate Down
+ - `a` - Left Mirror Rotate away from car
+ - `b` - Left Mirror Rotate towards car
+
+### Right Mirror Controls
+
+ - `t` - Right Mirror Rotate Up
+ - `b` - Right Mirror Rotate Down
+ - `h` - Right Mirror Rotate away from car
+ - `f` - Right Mirror Rotate towards car
+
+---
 
 ## Screenshot
 
