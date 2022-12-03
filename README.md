@@ -28,6 +28,7 @@ Features
 - `poetry install` - setup the environment
 - Ensure the Carla Simulator is running on localhost and listening to port 2000
   - `.\CarlaUE4.exe -windowed -ResX=1024 -ResY=786 -carla-rpc-port=2000 -quality-level=High`
+- Set simulation parameters in `config.yaml`
 - `poetry run python sim_main.py` - main simulation thread
 - `poetry run python mirror_views.py` - dual mirror views
 - `poetry run python right_mirror_view.py` - rigth mirror only

@@ -1,6 +1,14 @@
 # Calra Sim Config Parameters
+carla:
+  server: '127.0.0.1'
+  port: 2000
+  autopilot: False
+  timeout: 200
+  world: 'Town10HD_Opt'
+  vehicle_tag: 'charger_2020'
+
 sim:
-  default_control: "xboxone"
+  default_control: 'xboxone'
   windows:
     front_res: [1920,1080]
     mirror_res: [640,480]

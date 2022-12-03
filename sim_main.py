@@ -8,6 +8,7 @@ import math
 import pygame
 from ruamel.yaml import YAML
 from pathlib import Path
+from shared_memory_dict import SharedMemoryDict
 
 from pygame.locals import K_a
 from pygame.locals import K_w
@@ -17,7 +18,8 @@ from pygame.locals import K_f
 from pygame.locals import K_t
 from pygame.locals import K_h
 from pygame.locals import K_b
-from shared_memory_dict import SharedMemoryDict
+
+# Define shared memory object and size in bytes
 smd = SharedMemoryDict(name='tokens', size=10000000)
 
 # Read Config File
@@ -136,21 +138,20 @@ class controller ():
 
         self.vehicle.apply_control(self._control)
  
-host='127.0.0.1'
-port=2000
-vehicle_list=[]
+host=_config['carla']['server']
+port=_config['carla']['port']
 front_window_size=_config['sim']['windows']['front_res']
 mirror_window_size=_config['sim']['windows']['mirror_res']
-autopilot=False
+autopilot=_config['carla']['autopilot']
 
+vehicle_list=[]
 mp=mirror_parameters()
 
 # Connect to the client 
 client = carla.Client(host, port)
-client.set_timeout(200.0)
+client.set_timeout(_config['carla']['timeout'])
 
-#world = client.load_world('Town04')
-world = client.load_world('Town10HD_Opt')
+world = client.load_world(_config['carla']['world'])
 
 '''
 # Large World Loading
@@ -201,7 +202,8 @@ for car_bp in vehicle_blueprints:
     print (car_bp)
 '''
 
-vehicle_tag='charger_2020'
+vehicle_tag=_config['carla']['vehicle_tag']
+
 
 # Instanciating te vehicle to which we attached the sensors
 bp = world.get_blueprint_library().filter(vehicle_tag)[0]
@@ -233,6 +235,8 @@ car_blueprint.set_attribute('fov', '110')
 # Provide the position of the sensor relative to the vehicle.
 #left_mirror_transform = carla.Transform(carla.Location(x=.7, y=-1, z=1.2), carla.Rotation(yaw=-150))
 #right_mirror_transform = carla.Transform(carla.Location(x=.7, y=1, z=1.2), carla.Rotation(yaw=150))
+
+#TODO lookup pre-defined mirror locations based on vehicle tag
 
 left_mirror_transform = carla.Transform(carla.Location(x=.7, y=-1, z=1.2), carla.Rotation(pitch=mp.left_pitch, yaw=mp.left_yaw))
 right_mirror_transform = carla.Transform(carla.Location(x=.7, y=1, z=1.2), carla.Rotation(pitch=mp.right_pitch,yaw=mp.right_yaw))
