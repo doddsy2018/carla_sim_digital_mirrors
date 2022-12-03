@@ -1,5 +1,6 @@
-# carla_sim
-Carla Simulator client - Xbox One controller, Fanatec DD1 wheels, rear view mirrors, share memory modelfor separate processes rendering.
+# carla_sim - A Carla Simulator Client
+
+## Xbox One controller, Fanatec DD1 wheels, adjustable rear view mirrors, share memory model between process routines.
 
 ![screenshot](./images/rig_test.jpg)
 
