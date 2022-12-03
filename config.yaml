@@ -4,14 +4,27 @@ carla:
   port: 2000
   autopilot: False
   timeout: 200
+  no_rendering_mode: True
   world: 'Town10HD_Opt'
   vehicle_tag: 'charger_2020'
+  #vehicle_tag: 'wrangler_rubicon'
+  steering_dead_zone: 0.1   # 0.001 for fanatec
 
 sim:
   default_control: 'xboxone'
   windows:
-    front_res: [1920,1080]
+    front_res: [1024,768]
     mirror_res: [640,480]
+
+  # Note: different vehicles have different mirror locations, add new locations below
+  mirror_location:
+    charger_2020:
+      left: [0.5, -1, 1.0]
+      right:  [0.5, 1, 1.0]
+    wrangler_rubicon:
+      left: [0.5, -1, 1.5]
+      right:  [0.5, 1, 1.5]   
+
   controls:
     G29_Racing_Wheel:
         steering_wheel: 0
@@ -23,5 +36,11 @@ sim:
       steering_wheel: 0
       throttle: 5
       brake: 4
-      reverse: 5
-      handbrake: 4 
+      reverse: 0
+      handbrake: 1
+    fanatec:
+      steering_wheel: 0
+      throttle: 1
+      brake: 4
+      reverse: 1
+      handbrake: 2 

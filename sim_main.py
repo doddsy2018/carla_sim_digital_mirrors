@@ -71,12 +71,16 @@ class controller ():
             pygame.joystick.init()
 
             joystick_count = pygame.joystick.get_count()
-            if joystick_count > 1:
-                raise ValueError("Please Connect one Joystick")
+            #if joystick_count > 1:
+            #    raise ValueError("Please Connect one Joystick")
             if joystick_count ==0 :
                 raise ValueError("No joystick connected")
 
-            self._joystick = pygame.joystick.Joystick(0)
+            if control_device=='fanatec':
+                self._joystick = pygame.joystick.Joystick(1)
+            else:
+                self._joystick = pygame.joystick.Joystick(0)
+
             self._joystick.init()
 
             self._steer_idx = _config['sim']['controls'][control_device]['steering_wheel']
@@ -102,16 +106,23 @@ class controller ():
         jsButtons = [float(self._joystick.get_button(i)) for i in
                         range(self._joystick.get_numbuttons())]
 
+        # Invert Control Signals if needed
+        if control_device=='fanatec':
+            ic=-1
+        else:
+            ic=1
+
         # Custom function to map range of inputs [1, -1] to outputs [0, 1] i.e 1 from inputs means nothing is pressed
         # For the steering, it seems fine as it is
         K1 = 1.0  # 0.55
         steerCmd = K1 * math.tan(1.1 * jsInputs[self._steer_idx])
-        if (steerCmd>-0.1 and steerCmd<=0.1):
+        steer_dead_zone=_config['carla']['steering_dead_zone']
+        if (steerCmd>=-1*steer_dead_zone and steerCmd<=steer_dead_zone):
             steerCmd=0
 
         K2 = 1.6  # 1.6
         throttleCmd = K2 + (2.05 * math.log10(
-            -0.7 * jsInputs[self._throttle_idx] + 1.4) - 1.2) / 0.92
+            -0.7 * ic * jsInputs[self._throttle_idx] + 1.4) - 1.2) / 0.92
         if throttleCmd <= 0:
             throttleCmd = 0
         elif throttleCmd > 1:
@@ -119,7 +130,7 @@ class controller ():
         throttleCmd=(abs(1-throttleCmd))
 
         brakeCmd = 1.6 + (2.05 * math.log10(
-            -0.7 * jsInputs[self._brake_idx] + 1.4) - 1.2) / 0.92
+            -0.7 * ic * jsInputs[self._brake_idx] + 1.4) - 1.2) / 0.92
         if brakeCmd <= 0:
             brakeCmd = 0
         elif brakeCmd > 1:
@@ -129,10 +140,6 @@ class controller ():
         self._control.steer = steerCmd
         self._control.brake = brakeCmd
         self._control.throttle = throttleCmd
-
-        #print (self._control.throttle)
-
-        #toggle = jsButtons[self._reverse_idx]
 
         self._control.hand_brake = bool(jsButtons[self._handbrake_idx])
 
@@ -161,8 +168,6 @@ settings.tile_stream_distance = 2000
 world.apply_settings(settings)
 '''
 
-
-
 # Load layered map for Town 01 with minimum layout plus buildings and parked vehicles
 #world = client.load_world('Town10_Opt', carla.MapLayer.Buildings | carla.MapLayer.ParkedVehicles)
 # Toggle all buildings off
@@ -183,6 +188,7 @@ world.set_weather(weather)
 
 # Set up the simulator in synchronous mode
 settings = world.get_settings()
+settings.no_rendering_mode=_config['carla']['no_rendering_mode']
 settings.synchronous_mode = True # Enables synchronous mode
 settings.fixed_delta_seconds = 0.05
 world.apply_settings(settings)
@@ -203,7 +209,6 @@ for car_bp in vehicle_blueprints:
 '''
 
 vehicle_tag=_config['carla']['vehicle_tag']
-
 
 # Instanciating te vehicle to which we attached the sensors
 bp = world.get_blueprint_library().filter(vehicle_tag)[0]
@@ -228,21 +233,21 @@ car_blueprint.set_attribute('image_size_y', str(front_window_size[1]))
 car_blueprint.set_attribute('fov', '110')
 
 
-
 # Set the time in seconds between sensor captures
-###blueprint.set_attribute('sensor_tick', '1')
+#blueprint.set_attribute('sensor_tick', '1')
 
 # Provide the position of the sensor relative to the vehicle.
 #left_mirror_transform = carla.Transform(carla.Location(x=.7, y=-1, z=1.2), carla.Rotation(yaw=-150))
 #right_mirror_transform = carla.Transform(carla.Location(x=.7, y=1, z=1.2), carla.Rotation(yaw=150))
 
-#TODO lookup pre-defined mirror locations based on vehicle tag
 
-left_mirror_transform = carla.Transform(carla.Location(x=.7, y=-1, z=1.2), carla.Rotation(pitch=mp.left_pitch, yaw=mp.left_yaw))
-right_mirror_transform = carla.Transform(carla.Location(x=.7, y=1, z=1.2), carla.Rotation(pitch=mp.right_pitch,yaw=mp.right_yaw))
+# lookup pre-defined mirror locations based on vehicle tag
 
+lx, ly,lz = _config['sim']['mirror_location'][vehicle_tag]['left']
+rx, ry, rz = _config['sim']['mirror_location'][vehicle_tag]['right']
+left_mirror_transform = carla.Transform(carla.Location(x=lx, y=ly, z=lz), carla.Rotation(pitch=mp.left_pitch, yaw=mp.left_yaw))
+right_mirror_transform = carla.Transform(carla.Location(x=rx, y=ry, z=rz), carla.Rotation(pitch=mp.right_pitch,yaw=mp.right_yaw))
 front_view_transform = carla.Transform(carla.Location(x=0.8, z=1.7))
-
 
 # Tell the world to spawn the sensor, don't forget to attach it to your vehicle actor.
 lmv_sensor = world.spawn_actor(mirror_blueprint, left_mirror_transform, attach_to=vehicle_list[0])
@@ -314,8 +319,8 @@ while not crashed:
             elif event.key == K_b:
                     mp.right_pitch += -1
 
-            left_mirror_transform = carla.Transform(carla.Location(x=.7, y=-1, z=1.2), carla.Rotation(pitch=mp.left_pitch, yaw=mp.left_yaw))
-            right_mirror_transform = carla.Transform(carla.Location(x=.7, y=1, z=1.2), carla.Rotation(pitch=mp.right_pitch,yaw=mp.right_yaw))
+            left_mirror_transform = carla.Transform(carla.Location(x=lx, y=ly, z=lz), carla.Rotation(pitch=mp.left_pitch, yaw=mp.left_yaw))
+            right_mirror_transform = carla.Transform(carla.Location(x=rx, y=ry, z=rz), carla.Rotation(pitch=mp.right_pitch,yaw=mp.right_yaw))
             lmv_sensor.set_transform(left_mirror_transform)
             rmv_sensor.set_transform(right_mirror_transform)
 
