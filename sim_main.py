@@ -24,6 +24,8 @@ smd = SharedMemoryDict(name='tokens', size=10000000)
 configfile=Path("config.yaml")
 _config = YAML(typ='safe').load(configfile)
 
+control_device=_config['sim']['default_control']
+
 class mirror_parameters:
     def __init__(self):
         self.left_yaw=-150
@@ -60,26 +62,35 @@ class controller ():
     def __init__(self, vehicle):
         self._control = carla.VehicleControl()
         self._steer_cache = 0.0
-        # initialize steering wheel
-        pygame.joystick.init()
 
-        joystick_count = pygame.joystick.get_count()
-        if joystick_count > 1:
-            raise ValueError("Please Connect one Joystick")
-        if joystick_count ==0 :
-            raise ValueError("No joystick connected")
+        try:
 
+            # initialize steering wheel
+            pygame.joystick.init()
 
-        self._joystick = pygame.joystick.Joystick(0)
-        self._joystick.init()
+            joystick_count = pygame.joystick.get_count()
+            if joystick_count > 1:
+                raise ValueError("Please Connect one Joystick")
+            if joystick_count ==0 :
+                raise ValueError("No joystick connected")
 
-        self._steer_idx = 0
-        self._throttle_idx = 5
-        self._brake_idx = 4
-        self._reverse_idx = 5
-        self._handbrake_idx = 4
-        self.vehicle=vehicle
+            self._joystick = pygame.joystick.Joystick(0)
+            self._joystick.init()
 
+            self._steer_idx = _config['sim']['controls'][control_device]['steering_wheel']
+            self._throttle_idx = _config['sim']['controls'][control_device]['throttle']
+            self._brake_idx = _config['sim']['controls'][control_device]['brake']
+            self._reverse_idx = _config['sim']['controls'][control_device]['reverse']
+            self._handbrake_idx = _config['sim']['controls'][control_device]['handbrake']
+            self.vehicle=vehicle
+        except Exception as e: 
+            print(e)
+            print('Shutting Down')
+            client.apply_batch([carla.command.DestroyActor(x) for x in vehicle_list])
+            world.apply_settings(original_settings)
+            pygame.quit()
+            print ("Done")
+            exit (0)
 
 
     def parse_vehicle_wheel(self):
@@ -304,6 +315,16 @@ while not crashed:
             lmv_sensor.set_transform(left_mirror_transform)
             rmv_sensor.set_transform(right_mirror_transform)
 
+
+        # TODO - Get vehicle telemetry and post to shared memory
+        '''
+        #v = vehicle.get_velocity()
+        #Speed = (3.6 * math.sqrt(v.x**2 + v.y**2 + v.z**2))
+        #print (Speed)
+        '''
+
+   
+print('Shutting Down')
 client.apply_batch([carla.command.DestroyActor(x) for x in vehicle_list])
 world.apply_settings(original_settings)
 pygame.quit()

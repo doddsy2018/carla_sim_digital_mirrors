@@ -1,12 +1,12 @@
 # carla_sim
-Carla Simulator client - xbox360 joystick control, rear view mirrors, share memory model
+Carla Simulator client - xbox one joystick control, rear view mirrors, share memory model
 
 ## Introduction
 
 This code demonstrates how to share carla data between different python processes via a [shared memory dictionary](https://pypi.org/project/shared-memory-dict/).  
 
 Features
-- Uses xbox360 controller
+- Uses xbox one controller
 - Mirror sensor camera images are processed and stored in a shared memory object
 - Main simulation thread uses pygame window.
 - Share memory is accessed by the mirror view routines and displayed using opencv
@@ -43,17 +43,17 @@ Features
 
 ### Left Mirror Controls
 
- - `w` - Left Mirror Rotate Up
- - `x` - Left Mirror Rotate Down
- - `a` - Left Mirror Rotate away from car
- - `b` - Left Mirror Rotate towards car
+ - `W` - Left Mirror Rotate Up
+ - `X` - Left Mirror Rotate Down
+ - `A` - Left Mirror Rotate away from car
+ - `B` - Left Mirror Rotate towards car
 
 ### Right Mirror Controls
 
- - `t` - Right Mirror Rotate Up
- - `b` - Right Mirror Rotate Down
- - `h` - Right Mirror Rotate away from car
- - `f` - Right Mirror Rotate towards car
+ - `T` - Right Mirror Rotate Up
+ - `B` - Right Mirror Rotate Down
+ - `H` - Right Mirror Rotate away from car
+ - `F` - Right Mirror Rotate towards car
 
 ---
 

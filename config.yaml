@@ -1,6 +1,19 @@
 # Calra Sim Config Parameters
 sim:
+  default_control: "xboxone"
   windows:
     front_res: [1920,1080]
     mirror_res: [640,480]
-  
+  controls:
+    G29_Racing_Wheel:
+        steering_wheel: 0
+        throttle: 2
+        brake: 3
+        reverse: 5
+        handbrake: 4
+    xboxone:
+      steering_wheel: 0
+      throttle: 5
+      brake: 4
+      reverse: 5
+      handbrake: 4 
