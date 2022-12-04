@@ -23,7 +23,7 @@ Features
     - (https://carla.org/)
     - (https://github.com/carla-simulator/carla)
     - (https://github.com/carla-simulator/carla/releases/tag/0.9.13)
-- Download and Install AdditionalMaps_0.9.13w
+- Download and Install AdditionalMaps_0.9.13.zip
 - Install Python 3.8.10
 - Install Poetry Dependency Management (https://python-poetry.org/docs/)
 
@@ -37,6 +37,8 @@ Features
 - `poetry run python mirror_views.py` - dual mirror views
 - `poetry run python right_mirror_view.py` - rigth mirror only
 - `poetry run python left_mirror_view.py` - left mirror only
+
+NOTE: So far only testing on Windows 10.
 
 ## Utilities
 
