@@ -1,4 +1,4 @@
-# carla_sim - A Carla Simulator Client
+# carla_sim_digital_mirrors - A Carla Simulator Client with Digital Mirrors
 
 ## Xbox One controller, Fanatec DD1 wheels, adjustable rear view mirrors, share memory model between process routines.
 
